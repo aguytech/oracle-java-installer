@@ -131,8 +131,9 @@ install_jdk() {
     # echo "export PATH=\$PATH:/usr/lib/jvm/$VERSION/bin:/usr/lib/jvm/$VERSION/db/bin:/usr/lib/jvm/$VERSION/jre/bin" 2>&1 | tee --append /etc/profile.d/jdk.sh
     echo "export JAVA_HOME=/usr/lib/jvm/$VERSION" 2>&1 | tee --append /etc/profile.d/jdk.sh
     # echo "export DERBY_HOME=/usr/lib/jvm/$VERSION/db" 2>&1 | tee --append /etc/profile.d/jdk.sh
-    source /etc/profile.d/jdk.sh
     
+    export JAVA_HOME=/usr/lib/jvm/$VERSION
+    source /etc/profile.d/jdk.sh
     
     # final touch
     update-java-alternatives --set $VERSION 2>&1

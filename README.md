@@ -41,3 +41,8 @@ $ sudo apt install oracle-java8-installer
 ```
 You can read more about this [here](https://launchpad.net/~webupd8team/+archive/ubuntu/java).
 
+# Share
+
+Cite as:
+
+Miguel Frade, & João Sousa. (2019, June 6). labcif/oracle-java-installer. Zenodo. http://doi.org/10.5281/zenodo.3240243 ([BibTeX file](oracle-java-installer.bib))

@@ -35,6 +35,7 @@
 
 
 export f=$2
+export PRIORITY_LEVEL=1
 
 ######################################
 # install_jdk function
@@ -70,7 +71,7 @@ install_jdk() {
     #echo "name=$VERSION" >> .$VERSION.jinfo
     echo "name=java-`echo $VERSION | cut -d\. -f2`-oraclejdk-$ARCH" 2>&1 | tee --append .$VERSION.jinfo
     echo "alias=$VERSION" 2>&1 | tee --append .$VERSION.jinfo
-    echo "priority=1" 2>&1 | tee --append .$VERSION.jinfo
+    echo "priority=$PRIORITY_LEVEL" 2>&1 | tee --append .$VERSION.jinfo
     # echo "section=main" 2>&1 | tee --append .$VERSION.jinfo
     echo "section=non-free" 2>&1 | tee --append .$VERSION.jinfo
     echo "" 2>&1 | tee --append .$VERSION.jinfo
@@ -82,13 +83,13 @@ install_jdk() {
     #update-alternatives install java bin files jre
     for JAVA_EXE_FILE in * 
     do
-        update-alternatives --install "/usr/bin/$JAVA_EXE_FILE" "$JAVA_EXE_FILE" "/usr/lib/jvm/$VERSION/jre/bin/$JAVA_EXE_FILE" 1 2>&1
+        update-alternatives --install "/usr/bin/$JAVA_EXE_FILE" "$JAVA_EXE_FILE" "/usr/lib/jvm/$VERSION/jre/bin/$JAVA_EXE_FILE" $PRIORITY_LEVEL 2>&1
         echo "jre $JAVA_EXE_FILE /usr/lib/jvm/$VERSION/jre/bin/$JAVA_EXE_FILE" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
         chmod a+x /usr/bin/$JAVA_EXE_FILE 2>&1
     done
 
     #jexec
-    update-alternatives --install "/usr/bin/jexec" "jexec" "/usr/lib/jvm/$VERSION/jre/lib/jexec" 1 2>&1
+    update-alternatives --install "/usr/bin/jexec" "jexec" "/usr/lib/jvm/$VERSION/jre/lib/jexec" $PRIORITY_LEVEL 2>&1
     echo "jre jexec /usr/lib/jvm/$VERSION/jre/lib/jexec" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
 
     
@@ -100,12 +101,22 @@ install_jdk() {
         if [ -e /usr/lib/jvm/$VERSION/jre/bin/$JAVA_EXE_FILE ] ; then
             echo "the file \'$JAVA_EXE_FILE\' already exixts" 2>&1
         else
-            update-alternatives --install "/usr/bin/$JAVA_EXE_FILE" "$JAVA_EXE_FILE" "/usr/lib/jvm/$VERSION/bin/$JAVA_EXE_FILE" 1 2>&1
+            update-alternatives --install "/usr/bin/$JAVA_EXE_FILE" "$JAVA_EXE_FILE" "/usr/lib/jvm/$VERSION/bin/$JAVA_EXE_FILE" $PRIORITY_LEVEL 2>&1
             echo "jdk $JAVA_EXE_FILE /usr/lib/jvm/$VERSION/bin/$JAVA_EXE_FILE" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
             chmod a+x /usr/bin/$JAVA_EXE_FILE 2>&1
         fi
     done
 
+    ###man pages ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    cd /usr/share/man || exit
+    if [[ -L "man19" && -d "man19" ]]; then
+        echo "deleting previous symlink to java man pages" 2>&1
+        rm man19
+    fi
+    echo "creating symlink to java man pages" 2>&1
+    ln -s /usr/lib/jvm/$VERSION/man/man1 man19 2>&1
+    
+        
     # current browsers don't support the java plugin
         # # java plugin
         # mkdir -p /usr/lib/mozilla/plugins
@@ -117,9 +128,9 @@ install_jdk() {
     mv /etc/profile.d/jdk.sh /etc/profile.d/jdk.`date +%F`.bak
     echo "export J2SDKDIR=/usr/lib/jvm/$VERSION" 2>&1 | tee /etc/profile.d/jdk.sh
     echo "export J2REDIR=/usr/lib/jvm/$VERSION/jre" 2>&1 | tee --append /etc/profile.d/jdk.sh
-    echo "export PATH=$PATH:/usr/lib/jvm/$VERSION/bin:/usr/lib/jvm/$VERSION/db/bin:/usr/lib/jvm/$VERSION/jre/bin" 2>&1 | tee --append /etc/profile.d/jdk.sh
+    echo "export PATH=\$PATH:/usr/lib/jvm/$VERSION/bin:/usr/lib/jvm/$VERSION/db/bin:/usr/lib/jvm/$VERSION/jre/bin" 2>&1 | tee --append /etc/profile.d/jdk.sh
     echo "export JAVA_HOME=/usr/lib/jvm/$VERSION" 2>&1 | tee --append /etc/profile.d/jdk.sh
-    echo "export DERBY_HOME=/usr/lib/jvm/$VERSION/db" 2>&1 | tee --append /etc/profile.d/jdk.sh
+    # echo "export DERBY_HOME=/usr/lib/jvm/$VERSION/db" 2>&1 | tee --append /etc/profile.d/jdk.sh
     source /etc/profile.d/jdk.sh
     
     

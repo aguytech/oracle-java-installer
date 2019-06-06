@@ -1,4 +1,4 @@
-# install-java-ubuntu
+# oracle-java-installer
 
 Script to install `jdk-VERSION-linux-x64.tar.gz` on Ubuntu.
 You need to download the `jdk-VERSION-linux-x64.tar.gz` file from the Oracle web page.

@@ -50,7 +50,7 @@ install_jdk() {
     mkdir -p jdk-Oracle
     
     # extract and removes first directory
-    tar -xvzf $f -C jdk-Oracle --strip-components=1
+    tar -xvzf $f -C jdk-Oracle --strip-components=1 --skip-old-files
 
     # rename the directory
     VERSION=`grep "JAVA_VERSION=" jdk-Oracle/release | cut -d\" -f2`

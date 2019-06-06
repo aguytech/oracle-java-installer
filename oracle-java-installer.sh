@@ -2,17 +2,19 @@
 # 
 # DESCRIPTION:
 # 
-#   Script for install JDK Oracle amd64 only.
+#   Script to install Oracle JDK.
 #   Needs root permissions.
 #
 #   Examples:
-#       sudo ./java-oracle.sh --install jdk-8u45-linux-x64.tar.gz
-#       sudo ./java-oracle.sh --remove java-1.8.0_45-oraclejdk-amd64
+#       ./oracle-java-installer.sh --help
+#       ./oracle-java-installer.sh --status
+#       sudo ./oracle-java-installer.sh --install jdk-8u211-linux-x64.tar.gz
+#       sudo ./oracle-java-installer.sh --remove java-1.8.0_212-oraclejdk-amd64
 #
 # 
 # Copyright (C) 2019
 #   original script by João Sousa (https://github.com/joaosousa1/install-java-ubuntu)
-#   adapted by Miguel Frade
+#   modified by Miguel Frade
 #
 #
 # LICENSE:
@@ -39,24 +41,29 @@ export f=$2
 ######################################
 install_jdk() {
 
-    # TODO:
-    #   - set JAVA_HOME variable
-
+    if ! [ $(id -u) = 0 ]; then
+        echo "This option requires root permissions."
+        exit 1
+    fi
+    
     mkdir -p jdk-Oracle
-
+    
+    # extract and removes first directory
     tar -xvzf $f -C jdk-Oracle --strip-components=1
 
+    # rename the directory
     VERSION=`grep "JAVA_VERSION=" jdk-Oracle/release | cut -d\" -f2`
     ARCH=`grep "OS_ARCH=" jdk-Oracle/release | cut -d\" -f2`
     VERSION="java-$VERSION-oraclejdk-$ARCH"
     mv jdk-Oracle $VERSION
 
+    # move directory
     mkdir -p /usr/lib/jvm
     mv $VERSION /usr/lib/jvm/ || exit
     # change permissions
     chown -R root:root /usr/lib/jvm/$VERSION
 
-    # create file .jinfo
+    # delete current .jinfo file
     cd /usr/lib/jvm
     rm /usr/lib/jvm/.$VERSION.jinfo
 
@@ -64,11 +71,14 @@ install_jdk() {
     echo "name=java-`echo $VERSION | cut -d\. -f2`-oraclejdk-$ARCH" 2>&1 | tee --append .$VERSION.jinfo
     echo "alias=$VERSION" 2>&1 | tee --append .$VERSION.jinfo
     echo "priority=1" 2>&1 | tee --append .$VERSION.jinfo
-    echo "section=main" 2>&1 | tee --append .$VERSION.jinfo
+    # echo "section=main" 2>&1 | tee --append .$VERSION.jinfo
+    echo "section=non-free" 2>&1 | tee --append .$VERSION.jinfo
     echo "" 2>&1 | tee --append .$VERSION.jinfo
 
+    
     ###JRE BIN ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     cd /usr/lib/jvm/$VERSION/jre/bin/ || exit
+    
     #update-alternatives install java bin files jre
     for JAVA_EXE_FILE in * 
     do
@@ -81,13 +91,14 @@ install_jdk() {
     update-alternatives --install "/usr/bin/jexec" "jexec" "/usr/lib/jvm/$VERSION/jre/lib/jexec" 1 2>&1
     echo "jre jexec /usr/lib/jvm/$VERSION/jre/lib/jexec" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
 
+    
     ###JDK BIN ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     cd /usr/lib/jvm/$VERSION/bin/ || exit
     #update-alternatives install java bin files jdk
     for JAVA_EXE_FILE in * 
     do
         if [ -e /usr/lib/jvm/$VERSION/jre/bin/$JAVA_EXE_FILE ] ; then
-            echo "o binário $JAVA_EXE_FILE já existe" 2>&1
+            echo "the file \'$JAVA_EXE_FILE\' already exixts" 2>&1
         else
             update-alternatives --install "/usr/bin/$JAVA_EXE_FILE" "$JAVA_EXE_FILE" "/usr/lib/jvm/$VERSION/bin/$JAVA_EXE_FILE" 1 2>&1
             echo "jdk $JAVA_EXE_FILE /usr/lib/jvm/$VERSION/bin/$JAVA_EXE_FILE" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
@@ -95,11 +106,24 @@ install_jdk() {
         fi
     done
 
-    ## java plugin -- deprecated
-    # mkdir -p /usr/lib/mozilla/plugins
-    # update-alternatives --install /usr/lib/mozilla/plugins/libjavaplugin.so mozilla-javaplugin.so /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so 1 2>&1
-    # echo "plugin mozilla-javaplugin.so /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
+    # current browsers don't support the java plugin
+        # # java plugin
+        # mkdir -p /usr/lib/mozilla/plugins
+        # update-alternatives --install /usr/lib/mozilla/plugins/libjavaplugin.so mozilla-javaplugin.so /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so 1 2>&1
+        # echo "plugin mozilla-javaplugin.so /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
 
+    
+    # set JAVA variables
+    mv /etc/profile.d/jdk.sh /etc/profile.d/jdk.`date +%F`.bak
+    echo "export J2SDKDIR=/usr/lib/jvm/$VERSION" 2>&1 | tee /etc/profile.d/jdk.sh
+    echo "export J2REDIR=/usr/lib/jvm/$VERSION/jre" 2>&1 | tee --append /etc/profile.d/jdk.sh
+    echo "export PATH=$PATH:/usr/lib/jvm/$VERSION/bin:/usr/lib/jvm/$VERSION/db/bin:/usr/lib/jvm/$VERSION/jre/bin" 2>&1 | tee --append /etc/profile.d/jdk.sh
+    echo "export JAVA_HOME=/usr/lib/jvm/$VERSION" 2>&1 | tee --append /etc/profile.d/jdk.sh
+    echo "export DERBY_HOME=/usr/lib/jvm/$VERSION/db" 2>&1 | tee --append /etc/profile.d/jdk.sh
+    source /etc/profile.d/jdk.sh
+    
+    
+    # final touch
     update-java-alternatives --set $VERSION 2>&1
     exit
 }
@@ -108,6 +132,12 @@ install_jdk() {
 # remove_jdk function
 ######################################
 remove_jdk() {
+
+    if ! [ $(id -u) = 0 ]; then
+        echo "This option requires root permissions."
+        exit 1
+    fi
+
     VERSION="$f"
     ARCH=`echo $VERSION | rev | cut -d- -f1 | rev`
 
@@ -128,6 +158,7 @@ remove_jdk() {
     update-alternatives --remove "mozilla-javaplugin.so" /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so 2>&1
     rm -r /usr/lib/jvm/$VERSION 2>&1
     rm /usr/lib/jvm/.$VERSION.jinfo 2>&1
+    
     exit
 }
 
@@ -136,8 +167,8 @@ remove_jdk() {
 ######################################
 print_help () {
     echo "Options:"
-    echo "$0 --install jdk-<VERSION>-linux-x64.tar.gz"
-    echo "$0 --remove java-<VERSION>-oraclejdk-amd64"
+    echo "$0 --install jdk-VERSION-linux-x64.tar.gz"
+    echo "$0 --remove java-VERSION-oraclejdk-amd64"
     echo "$0 --status"
 }
 
@@ -173,7 +204,7 @@ case $1 in
     -h | --help )
         print_help
         ;;
-    -h | --status )
+    -s | --status )
         status
         ;;
     *)

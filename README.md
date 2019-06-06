@@ -1,7 +1,9 @@
 # install-java-ubuntu
 
-Script to install `jdk-8uVERSION-linux-x64.tar.gz` on Ubuntu.
-You need to download the `jdk-8uVERSION-linux-x64.tar.gz` file from the [oracle web page](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+Script to install `jdk-VERSION-linux-x64.tar.gz` on Ubuntu.
+You need to download the `jdk-VERSION-linux-x64.tar.gz` file from the Oracle web page.
+
+This script was developed with [java 8 from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) in mind, but should work with other versions also.
 
 Tested on (K)Ubuntu 18.04 x64
 
@@ -13,31 +15,30 @@ Options:
 **Install tar.gz file**
 
 ```bash
-$ java-install.sh --install jdk-VERSION-linux-x64.tar.gz
+$ ./oracle-java-installer.sh --install jdk-VERSION-linux-x64.tar.gz
 ```
 
 **Remove** 
 
 ```bash
-$ java-install.sh --remove java-VERSION-oraclejdk-amd64"
+$ ./oracle-java-installer.sh --remove java-VERSION-oraclejdk-amd64"
 ```
 
 **See current default java instalation**
 
 ```bash
-$ java-install.sh --status
+$ ./oracle-java-installer.sh --status
 ```
 
 
 # Why this script
 
-In order to run the [Autopsy forensic browser](https://www.sleuthkit.org/autopsy/download.php) on Linux you need to install the latest version of java 1.8 from Oracle.
-
-Unfortunately, as of April 16 2019, the preferred method **no longer works**:
+In order to run the [Autopsy forensic browser](https://www.sleuthkit.org/autopsy/download.php) on Linux you need to install the latest version of java 8 from Oracle. 
+Unfortunately, since 2019-04-16 the preferred method for Ubuntu **no longer works**:
 ```bash
 $ sudo add-apt-repository ppa:webupd8team/java
-$ sudo apt-get update
-$ sudo apt-get install oracle-java8-installer
+$ sudo apt update
+$ sudo apt install oracle-java8-installer
 ```
 You can read more about this [here](https://launchpad.net/~webupd8team/+archive/ubuntu/java).
 

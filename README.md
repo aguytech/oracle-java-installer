@@ -1,7 +1,7 @@
 # install-java-ubuntu
 
 Script to install `jdk-8uVERSION-linux-x64.tar.gz` on Ubuntu.
-You need to download the `jdk-8uVERSION-linux-x64.tar.gz` file from [oracle web page](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+You need to download the `jdk-8uVERSION-linux-x64.tar.gz` file from the [oracle web page](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 
 Tested on (K)Ubuntu 18.04 x64
 
@@ -13,19 +13,19 @@ Options:
 **Install tar.gz file**
 
 ```bash
-$ java-install-0.1.sh --install jdk-VERSION-linux-x64.tar.gz
+$ java-install.sh --install jdk-VERSION-linux-x64.tar.gz
 ```
 
 **Remove** 
 
 ```bash
-$ java-install-0.1.sh --remove java-VERSION-oraclejdk-amd64"
+$ java-install.sh --remove java-VERSION-oraclejdk-amd64"
 ```
 
 **See current default java instalation**
 
 ```bash
-$ java-install-0.1.sh --status
+$ java-install.sh --status
 ```
 
 

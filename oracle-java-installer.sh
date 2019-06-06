@@ -128,7 +128,7 @@ install_jdk() {
     mv /etc/profile.d/jdk.sh /etc/profile.d/jdk.`date +%F`.bak
     echo "export J2SDKDIR=/usr/lib/jvm/$VERSION" 2>&1 | tee /etc/profile.d/jdk.sh
     echo "export J2REDIR=/usr/lib/jvm/$VERSION/jre" 2>&1 | tee --append /etc/profile.d/jdk.sh
-    echo "export PATH=\$PATH:/usr/lib/jvm/$VERSION/bin:/usr/lib/jvm/$VERSION/db/bin:/usr/lib/jvm/$VERSION/jre/bin" 2>&1 | tee --append /etc/profile.d/jdk.sh
+    # echo "export PATH=\$PATH:/usr/lib/jvm/$VERSION/bin:/usr/lib/jvm/$VERSION/db/bin:/usr/lib/jvm/$VERSION/jre/bin" 2>&1 | tee --append /etc/profile.d/jdk.sh
     echo "export JAVA_HOME=/usr/lib/jvm/$VERSION" 2>&1 | tee --append /etc/profile.d/jdk.sh
     # echo "export DERBY_HOME=/usr/lib/jvm/$VERSION/db" 2>&1 | tee --append /etc/profile.d/jdk.sh
     source /etc/profile.d/jdk.sh

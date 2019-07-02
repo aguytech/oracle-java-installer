@@ -52,6 +52,7 @@ install_jdk() {
     TOP_DIR=`tar -tf $f | head -1 | cut -f1 -d"/"`
     mkdir -p jdk-Oracle
     # extract only release file
+    # too slow, but works
     tar -xvzf $f -C jdk-Oracle --strip-components=1 --skip-old-files $TOP_DIR/release
 
     # get version info
@@ -59,6 +60,13 @@ install_jdk() {
     ARCH=`grep "OS_ARCH=" jdk-Oracle/release | cut -d\" -f2`
     VERSION="java-$NUMBER-oraclejdk-$ARCH"
     DEST_DIR="/usr/lib/jvm/$VERSION/jre/bin/"
+    
+    SYSTEM_ARCH=`dpkg --print-architecture`
+    if ! [ $SYSTEM_ARCH == $ARCH ]; then
+        echo "[ERROR] This java version is for \"$ARCH\","
+        echo "[ERROR] but your system is \"$SYSTEM_ARCH\"."
+        exit 1
+    fi
     
     if [ -d "$DEST_DIR" ]; then
         echo "[ERROR] $VERSION is already installed."
@@ -181,9 +189,8 @@ remove_jdk() {
     fi
     
     if [ "$IS_ORACLE" != "oraclejdk" ]; then
-        echo "[ERROR] $VERSION is not known. Oracle Java version must have this format:"
-        echo "[ERROR] \tjava-VERSION-oraclejdk-ARCH, for example: \"java-1.8.0_212-oraclejdk-amd64\"."
-        echo "[ERROR] Check java installed versions with: $0 --status"
+        echo "[ERROR] $VERSION is not known. Currently installed java JVM:"
+        $0 --status
         exit 1
     fi
     

@@ -178,13 +178,14 @@ remove_jdk() {
     if [ "$IS_ORACLE" != "oraclejdk" ]; then
         echo "[ERROR] $VERSION is not known. Oracle Java version must have this format:"
         echo "[ERROR] \tjava-VERSION-oraclejdk-ARCH, for example: \"java-1.8.0_212-oraclejdk-amd64\"."
-        echo "[ERROR] Check java installed version with: $0 --status"
+        echo "[ERROR] Check java installed versions with: $0 --status"
         exit 1
     fi
     
     
     if ! [ -d "/usr/lib/jvm/$VERSION" ]; then
         echo "[ERROR] $VERSION doesn't exist."
+        echo "[ERROR] Check java installed versions with: $0 --status"
         exit 1
     fi
     
@@ -204,12 +205,12 @@ remove_jdk() {
 
     #remove jexec
     update-alternatives --remove "jexec" "/usr/lib/jvm/$VERSION/jre/lib/jexec" 2>&1
-    echo "[INFO ] update-alternatives entries removed."
     
     echo "[INFO ] Deleting $VERSION files ..."
     rm -r /usr/lib/jvm/$VERSION 2>&1
     rm /usr/lib/jvm/.$VERSION.jinfo 2>&1
-    echo "[INFO ] $VERSION files deleted."
+    
+    echo "[INFO ] $VERSION is removed."
     
     exit
 }

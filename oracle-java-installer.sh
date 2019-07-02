@@ -62,6 +62,8 @@ install_jdk() {
     
     if [ -d "$DEST_DIR" ]; then
         echo "[ERROR] $VERSION is already installed."
+        # print status
+        $0 -s
         exit 1
     fi
     
@@ -151,6 +153,9 @@ install_jdk() {
     update-java-alternatives --set $VERSION 2>&1
     
     echo "[INFO ] Install of $VERSION complete."
+    
+    # print status
+    $0 -s
     exit
 }
 
@@ -215,6 +220,9 @@ remove_jdk() {
     
     echo "[INFO ] $VERSION is removed."
     
+    # print status
+    $0 -s
+    
     exit
 }
 
@@ -233,8 +241,8 @@ print_help () {
 ######################################
 status () {
     # see status
-    echo "=================================================="
     echo "Status:"
+    echo "=================================================="
     update-java-alternatives -l
     echo "--------------------------------------------------"
     java -version
@@ -244,6 +252,7 @@ status () {
     update-java-alternatives -l | head -1 | cut -d' ' -f1
     echo ""
     echo "JAVA_HOME=$JAVA_HOME"
+    echo ""
 }
 
 

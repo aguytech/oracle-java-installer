@@ -43,23 +43,41 @@ export PRIORITY_LEVEL=1
 install_jdk() {
 
     if ! [ $(id -u) = 0 ]; then
-        echo "This option requires root permissions."
+        echo "[ERROR] This option requires root permissions."
         exit 1
     fi
     
+    # get the name of the first dir
+    echo "[INFO ] Getting version number..."
+    TOP_DIR=`tar -tf $f | head -1 | cut -f1 -d"/"`
     mkdir -p jdk-Oracle
+    # extract only release file
+    tar -xvzf $f -C jdk-Oracle --strip-components=1 --skip-old-files $TOP_DIR/release
+
+    # get version info
+    NUMBER=`grep "JAVA_VERSION=" jdk-Oracle/release | cut -d\" -f2`
+    ARCH=`grep "OS_ARCH=" jdk-Oracle/release | cut -d\" -f2`
+    VERSION="java-$NUMBER-oraclejdk-$ARCH"
+    DEST_DIR="/usr/lib/jvm/$VERSION/jre/bin/"
+    
+    if [ -d "$DEST_DIR" ]; then
+        echo "[ERROR] $VERSION already installed."
+        exit 1
+    fi
+    
     
     # extract and removes first directory
-    tar -xvzf $f -C jdk-Oracle --strip-components=1 --skip-old-files
-
-    # rename the directory
-    VERSION=`grep "JAVA_VERSION=" jdk-Oracle/release | cut -d\" -f2`
-    ARCH=`grep "OS_ARCH=" jdk-Oracle/release | cut -d\" -f2`
-    VERSION="java-$VERSION-oraclejdk-$ARCH"
+    echo "[INFO ] Extracting files from $f..."
+    tar -xvzf $f -C jdk-Oracle --strip-components=1 --skip-old-files 
+    echo "[INFO ] Files extracted from $f."
+    
     mv jdk-Oracle $VERSION
 
     # move directory
     mkdir -p /usr/lib/jvm
+    
+    
+    echo "[INFO ] Installing $VERSION ..."
     mv $VERSION /usr/lib/jvm/ || exit
     # change permissions
     chown -R root:root /usr/lib/jvm/$VERSION
@@ -78,8 +96,9 @@ install_jdk() {
 
     
     ###JRE BIN ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-    cd /usr/lib/jvm/$VERSION/jre/bin/ || exit
+    cd $DEST_DIR || exit
     
+    echo "[INFO ] Adding $VERSION to update-alternatives..."
     #update-alternatives install java bin files jre
     for JAVA_EXE_FILE in * 
     do
@@ -108,6 +127,7 @@ install_jdk() {
     done
 
     ###man pages ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    echo "[INFO ] Adding $VERSION man pages..."
     cd /usr/share/man || exit
     if [[ -L "man19" && -d "man19" ]]; then
         echo "deleting previous symlink to java man pages" 2>&1
@@ -115,15 +135,8 @@ install_jdk() {
     fi
     echo "creating symlink to java man pages" 2>&1
     ln -s /usr/lib/jvm/$VERSION/man/man1 man19 2>&1
-    
-        
-    # current browsers don't support the java plugin
-        # # java plugin
-        # mkdir -p /usr/lib/mozilla/plugins
-        # update-alternatives --install /usr/lib/mozilla/plugins/libjavaplugin.so mozilla-javaplugin.so /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so 1 2>&1
-        # echo "plugin mozilla-javaplugin.so /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so" 2>&1 | tee --append /usr/lib/jvm/.$VERSION.jinfo
 
-    
+    echo "[INFO ] Setting JAVA variables..."
     # set JAVA variables
     mv /etc/profile.d/jdk.sh /etc/profile.d/jdk.`date +%F`.bak
     echo "export J2SDKDIR=/usr/lib/jvm/$VERSION" 2>&1 | tee /etc/profile.d/jdk.sh
@@ -137,6 +150,8 @@ install_jdk() {
     
     # final touch
     update-java-alternatives --set $VERSION 2>&1
+    
+    echo "[INFO ] Install of $VERSION complete."
     exit
 }
 
@@ -146,20 +161,42 @@ install_jdk() {
 remove_jdk() {
 
     if ! [ $(id -u) = 0 ]; then
-        echo "This option requires root permissions."
+        echo "[ERROR] This option requires root permissions."
         exit 1
     fi
-
-    VERSION="$f"
-    ARCH=`echo $VERSION | rev | cut -d- -f1 | rev`
-
-    cd /usr/lib/jvm/$VERSION/jre/bin/ || exit
+    
+    # $f = java-1.8.0_212-oraclejdk-amd64
+    VERSION=$f
+    IS_ORACLE=`echo $VERSION | cut -d- -f 3`
+    
+    if [ "$IS_ORACLE" == "openjdk" ]; then
+        echo "[ERROR] $VERSION is from OpenJDK."
+        echo "[ERROR] Use your system's packet manager instead to remove it."
+        exit 1
+    fi
+    
+    if [ "$IS_ORACLE" != "oraclejdk" ]; then
+        echo "[ERROR] $VERSION is not known. Oracle Java version must have this format:"
+        echo "[ERROR] \tjava-VERSION-oraclejdk-ARCH, for example: \"java-1.8.0_212-oraclejdk-amd64\"."
+        echo "[ERROR] Check java installed version with: $0 --status"
+        exit 1
+    fi
+    
+    
+    if [! -d "/usr/lib/jvm/$VERSION" ]; then
+        echo "[ERROR] $VERSION is not installed."
+        exit 1
+    fi
+    
+    cd /usr/lib/jvm/$VERSION || exit 1
+    
+    echo "[INFO ] Removing update-alternatives entries ..."
     for JAVA_EXE_FILE in * 
     do
         update-alternatives --remove "$JAVA_EXE_FILE" "/usr/lib/jvm/$VERSION/jre/bin/$JAVA_EXE_FILE" 2>&1
     done
 
-    cd /usr/lib/jvm/$VERSION/bin/ || exit
+    cd /usr/lib/jvm/$VERSION/bin/ || exit 1
     for JAVA_EXE_FILE in * 
     do
         update-alternatives --remove "$JAVA_EXE_FILE" "/usr/lib/jvm/$VERSION/bin/$JAVA_EXE_FILE" 2>&1
@@ -167,9 +204,12 @@ remove_jdk() {
 
     #remove jexec
     update-alternatives --remove "jexec" "/usr/lib/jvm/$VERSION/jre/lib/jexec" 2>&1
-    update-alternatives --remove "mozilla-javaplugin.so" /usr/lib/jvm/$VERSION/jre/lib/$ARCH/libnpjp2.so 2>&1
+    echo "[INFO ] update-alternatives entries removed."
+    
+    echo "[INFO ] Deleting $VERSION files ..."
     rm -r /usr/lib/jvm/$VERSION 2>&1
     rm /usr/lib/jvm/.$VERSION.jinfo 2>&1
+    echo "[INFO ] $VERSION files deleted."
     
     exit
 }
@@ -194,8 +234,10 @@ status () {
     java -version && update-java-alternatives -l
     echo "=================================================="
     echo ""
-    echo "Default java:"
+    echo "Default java from update-java-alternatives:"
     update-java-alternatives -l | head -1 | cut -d' ' -f1
+    echo ""
+    echo "JAVA_HOME=$JAVA_HOME"
 }
 
 

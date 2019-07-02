@@ -152,6 +152,7 @@ install_jdk() {
     # final touch
     update-java-alternatives --set $VERSION 2>&1
     
+    
     echo "[INFO ] Install of $VERSION complete."
     
     # print status
@@ -193,6 +194,8 @@ remove_jdk() {
         exit 1
     fi
     
+    PREVIOUS_DIR=`pwd`
+    
     cd /usr/lib/jvm/$VERSION || exit 1
     
     echo "[INFO ] Removing update-alternatives entries ..."
@@ -209,6 +212,8 @@ remove_jdk() {
 
     #remove jexec
     update-alternatives --remove "jexec" "/usr/lib/jvm/$VERSION/jre/lib/jexec" 2>&1
+    
+    cd $PREVIOUS_DIR
     
     echo "[INFO ] Deleting $VERSION files ..."
     rm -r /usr/lib/jvm/$VERSION 2>&1

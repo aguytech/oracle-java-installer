@@ -189,15 +189,15 @@ remove_jdk() {
     fi
     
     if [ "$IS_ORACLE" != "oraclejdk" ]; then
-        echo "[ERROR] $VERSION is not known. Currently installed java JVM:"
+        echo "[ERROR] $VERSION is not known. Currently installed java JVM are:"
         $0 --status
         exit 1
     fi
     
     
     if ! [ -d "/usr/lib/jvm/$VERSION" ]; then
-        echo "[ERROR] $VERSION doesn't exist."
-        echo "[ERROR] Check java installed versions with: $0 --status"
+        echo "[ERROR] $VERSION doesn't exist. Currently installed java JVM are:"
+        $0 --status
         exit 1
     fi
     

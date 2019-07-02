@@ -210,6 +210,9 @@ remove_jdk() {
     rm /usr/lib/jvm/.$VERSION.jinfo 2>&1
     rm /etc/profile.d/jdk.sh 2>&1
     
+    echo "[INFO ] Setup another java alternative."
+    update-java-alternatives -a
+    
     echo "[INFO ] $VERSION is removed."
     
     exit
@@ -232,7 +235,9 @@ status () {
     # see status
     echo "=================================================="
     echo "Status:"
-    java -version && update-java-alternatives -l
+    update-java-alternatives -l
+    echo "--------------------------------------------------"
+    java -version
     echo "=================================================="
     echo ""
     echo "Default java from update-java-alternatives:"

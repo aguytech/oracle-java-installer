@@ -47,6 +47,13 @@ install_jdk() {
         exit 1
     fi
     
+    if [ -f "$f" ]; then
+        echo "[ERROR] $f doesn't exists."
+        # print status
+        $0 -s
+        exit 1
+    fi
+    
     # get the name of the first dir
     echo "[INFO ] Getting version number..."
     TOP_DIR=`tar -tf $f | head -1 | cut -f1 -d"/"`

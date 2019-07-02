@@ -61,7 +61,7 @@ install_jdk() {
     DEST_DIR="/usr/lib/jvm/$VERSION/jre/bin/"
     
     if [ -d "$DEST_DIR" ]; then
-        echo "[ERROR] $VERSION already installed."
+        echo "[ERROR] $VERSION is already installed."
         exit 1
     fi
     
@@ -183,8 +183,8 @@ remove_jdk() {
     fi
     
     
-    if [! -d "/usr/lib/jvm/$VERSION" ]; then
-        echo "[ERROR] $VERSION is not installed."
+    if ! [ -d "/usr/lib/jvm/$VERSION" ]; then
+        echo "[ERROR] $VERSION doesn't exist."
         exit 1
     fi
     

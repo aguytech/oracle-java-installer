@@ -47,7 +47,7 @@ install_jdk() {
         exit 1
     fi
     
-    if [ -f "$f" ]; then
+    if ! [ -f "$f" ]; then
         echo "[ERROR] $f doesn't exists."
         # print status
         $0 -s

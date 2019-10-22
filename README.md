@@ -1,5 +1,10 @@
 # oracle-java-installer
 
+#NOTE: This script will no longer be updated!
+The porpose of this script was to help the instalation of Autopsy for Linux, but since version 4.13 it changed to OpenJDK.
+
+----------------------------
+
 Script to install `jdk-VERSION-linux-x64.tar.gz` on Ubuntu.
 You need to download the `jdk-VERSION-linux-x64.tar.gz` file from the Oracle web page.
 This script was developed with [java 8 from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) in mind, but should work with other versions also.

@@ -1,9 +1,9 @@
-# oracle-java-installer
+# DEPRECATED: oracle-java-installer
 
-# DEPRECATED
 The porpose of this script was to help the instalation of Autopsy for Linux, but since version 4.13 it changed to OpenJDK. So, for that reason this script will no longer be updated!
 
 ----------------------------
+**Original description:**
 
 Script to install `jdk-VERSION-linux-x64.tar.gz` on Ubuntu.
 You need to download the `jdk-VERSION-linux-x64.tar.gz` file from the Oracle web page.

@@ -1,7 +1,7 @@
 # oracle-java-installer
 
-# NOTE: This script will no longer be updated!
-The porpose of this script was to help the instalation of Autopsy for Linux, but since version 4.13 it changed to OpenJDK.
+# DEPRECATED
+The porpose of this script was to help the instalation of Autopsy for Linux, but since version 4.13 it changed to OpenJDK. So, for that reason this script will no longer be updated!
 
 ----------------------------
 

@@ -99,7 +99,7 @@ install_jdk() {
 
     # delete current .jinfo file
     cd /usr/lib/jvm
-    rm /usr/lib/jvm/.$VERSION.jinfo
+    [ -f /usr/lib/jvm/.$VERSION.jinfo ] && rm /usr/lib/jvm/.$VERSION.jinfo
 
     #echo "name=$VERSION" >> .$VERSION.jinfo
     echo "name=java-`echo $VERSION | cut -d\. -f2`-oraclejdk-$ARCH" 2>&1 | tee --append .$VERSION.jinfo
@@ -153,7 +153,7 @@ install_jdk() {
 
     echo "[INFO ] Setting JAVA variables..."
     # set JAVA variables
-    mv /etc/profile.d/jdk.sh /etc/profile.d/jdk.`date +%F`.bak
+    [ -f /etc/profile.d/jdk.sh ] && mv /etc/profile.d/jdk.sh /etc/profile.d/jdk.`date +%F`.bak
     echo "export J2SDKDIR=/usr/lib/jvm/$VERSION" 2>&1 | tee /etc/profile.d/jdk.sh
     echo "export J2REDIR=/usr/lib/jvm/$VERSION/jre" 2>&1 | tee --append /etc/profile.d/jdk.sh
     echo "export JAVA_HOME=/usr/lib/jvm/$VERSION" 2>&1 | tee --append /etc/profile.d/jdk.sh
